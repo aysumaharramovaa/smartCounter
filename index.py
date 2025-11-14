@@ -8,7 +8,7 @@ arduino = serial.Serial('COM16', 9600, timeout=1)   # ← измени на св
 time.sleep(2)
 
 # ====== Thresholds ======
-LIGHT_THRESHOLD = 300
+LIGHT_THRESHOLD = 300   # теперь счёт идёт, если light < LIGHT_THRESHOLD
 GAS_THRESHOLD = 350
 WATER_THRESHOLD = 400
 
@@ -107,8 +107,8 @@ def update_data():
         #        COST CALCULATOR
         # ============================
 
-        # --- LIGHT (kWh) ---
-        if light > LIGHT_THRESHOLD:
+        # --- LIGHT (кВт·ч) ---
+        if light < LIGHT_THRESHOLD:  # инвертированная логика
             unit = analog_to_value(light)  # псевдо-кВт
             # Тарифы
             if total_light <= 200:
