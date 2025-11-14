@@ -12,7 +12,7 @@ LIGHT_THRESHOLD = 300   # теперь счёт идёт, если light < LIGHT
 GAS_THRESHOLD = 350
 WATER_THRESHOLD = 400
 
-# ====== Accumulators ======
+# ====== Accumulators =====
 total_light = 0
 total_gas = 0
 total_water = 0
