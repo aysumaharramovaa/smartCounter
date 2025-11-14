@@ -2,7 +2,7 @@ import serial
 import time
 
 # Настройка Serial (COM-порт и скорость должны совпадать с Arduino)
-arduino = serial.Serial('COM3', 9600, timeout=1)
+arduino = serial.Serial('COM16', 9600, timeout=1)
 time.sleep(2)  # ждём подключение
 
 # Стоимость ресурсов
