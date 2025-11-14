@@ -162,7 +162,7 @@ update_data()
 TOKEN = "7978466946:AAF4gBpJRY0ZKFHVEE0l0lDUAU_JpVq30h8"
 
 LANGUAGES = {
-    "English": {"start":"Welcome to SmartCounterBot! Select a language:", "light":"Light","gas":"Gas","water":"Water","usage":"Usage since last payment","cost":"Cost","last_payment":"Last payment","full_status":"Full Status","total_cost":"Total cost"},
+    "English": {"start":"Welcome to SmartCounterBot! Select a language:","light":"Light","gas":"Gas","water":"Water","usage":"Usage since last payment","cost":"Cost","last_payment":"Last payment","full_status":"Full Status","total_cost":"Total cost"},
     "Russian": {"start":"Добро пожаловать в SmartCounterBot! Выберите язык:","light":"Свет","gas":"Газ","water":"Вода","usage":"Использовано с последней оплаты","cost":"Стоимость","last_payment":"Последняя оплата","full_status":"Общий статус","total_cost":"Общая стоимость"},
     "Azerbaijani": {"start":"SmartCounterBot-a xoş gəlmisiniz! Zəhmət olmasa dili seçin:","light":"İşıq","gas":"Qaz","water":"Su","usage":"Son ödənişdən bəri istifadə","cost":"Qiymət","last_payment":"Son ödəniş","full_status":"Ümumi vəziyyət","total_cost":"Ümumi məbləğ"},
     "Turkish": {"start":"SmartCounterBot'a hoş geldiniz! Lütfen bir dil seçin:","light":"Işık","gas":"Gaz","water":"Su","usage":"Son ödemeden beri kullanım","cost":"Maliyet","last_payment":"Son ödeme","full_status":"Genel Durum","total_cost":"Toplam maliyet"}
@@ -179,16 +179,17 @@ async def set_language(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = update.message.text
     if lang in LANGUAGES:
         user_lang[update.effective_user.id] = lang
-        await update.message.reply_text(LANGUAGES[lang]["start"] + "\nUse commands: /light /gas /water /status_all")
+        await update.message.reply_text(LANGUAGES[lang]["start"] + "\nCommands: /light /gas /water /status_all")
     else:
         await update.message.reply_text("Invalid selection. Choose language from keyboard.")
 
-def format_status(sensor):
-    uid = sensor.effective_user.id
+def format_status(update, command_name):
+    uid = update.effective_user.id
     lang = user_lang.get(uid, "English")
     d = LANGUAGES[lang]
     payment_info = last_payment_date.strftime("%Y-%m-%d %H:%M:%S") if last_payment_date else "No payment yet"
-    if sensor.command.command == "status_all":
+
+    if command_name == "status_all":
         return (
             f"{d['full_status']}:\n"
             f"{d['light']}: {current_values['light']} | {d['usage']}: {usage_since_last['light']:.2f} | {d['cost']}: {total_light:.2f} ₼\n"
@@ -198,26 +199,28 @@ def format_status(sensor):
             f"{d['last_payment']}: {payment_info}"
         )
     else:
-        key = sensor.command.command
+        key = command_name
         val = current_values[key]
         usage = usage_since_last[key]
         cost = {"light": total_light, "gas": total_gas, "water": total_water}[key]
         return f"{d[key]}:\nValue: {val}\n{d['usage']}: {usage:.2f}\n{d['cost']}: {cost:.2f} ₼\n{d['last_payment']}: {payment_info}"
 
 async def light_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(format_status(update))
+    await update.message.reply_text(format_status(update, "light"))
+
 async def gas_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(format_status(update))
+    await update.message.reply_text(format_status(update, "gas"))
+
 async def water_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(format_status(update))
+    await update.message.reply_text(format_status(update, "water"))
+
 async def status_all(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(format_status(update))
+    await update.message.reply_text(format_status(update, "status_all"))
 
 # -------------------------------
 # Start Telegram bot in separate thread
 # -------------------------------
 def run_bot():
-    import asyncio
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
 
@@ -228,6 +231,7 @@ def run_bot():
     app.add_handler(CommandHandler("water", water_status))
     app.add_handler(CommandHandler("status_all", status_all))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, set_language))
+
     loop.run_until_complete(app.run_polling())
 
 threading.Thread(target=run_bot, daemon=True).start()
