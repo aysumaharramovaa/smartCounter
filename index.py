@@ -49,7 +49,7 @@ lbl_gas.grid(row=1, column=0, padx=20, pady=5)
 lbl_water = ttk.Label(frame, text="Water: 0")
 lbl_water.grid(row=2, column=0, padx=20, pady=5)
 
-# Costs
+# Costss
 lbl_cost_light = ttk.Label(frame, text="Light cost: 0.00 ₼")
 lbl_cost_light.grid(row=0, column=1, padx=20, pady=5)
 
