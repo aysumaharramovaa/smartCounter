@@ -236,5 +236,5 @@ def run_bot():
 
 threading.Thread(target=run_bot, daemon=True).start()
 
-# Start GUI mainloopp
+# Start GUI mainloop
 root.mainloop()
